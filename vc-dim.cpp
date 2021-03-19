@@ -43,10 +43,15 @@ int main() {
 
 		do {
 			if (shatter(vectors,mask)) {
-				if (Ds.size() and Ds[0].size()!=i)
+				if (Ds.size() and vc!=i) {
+					vc = i;
 					Ds.clear();
+				}
 				Ds.push_back(get_index(mask));
 			}
+			else if (vc+2==i)
+				break;
+
 		} while(next_permutation(mask.begin(),mask.end()));
 
 	}
@@ -78,6 +83,10 @@ bool shatter(vector<string> &F, string &D) {
 
 	for (auto &c : D)
 		if (c=='1') dim++;
+		
+	// Family must contain at least 2^dim vectors
+	if (F.size()<(1<<dim))
+		return false;
 
 	for (auto &vec : F) {
 		string str(D.size(), '0');
@@ -101,8 +110,3 @@ vector<short> get_index(string &mask) {
 }
 
 
-
-
-/*
-eliinar vectores en la entrada que no sean unicos
-*/
