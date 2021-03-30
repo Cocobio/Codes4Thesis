@@ -15,9 +15,9 @@ int vc_dim(int n, vector<string> &vectors) ;
 int max_subsets(int n, int k);
 
 int main() {
-	int n = 5;
-	int k = 3;
-	int subsets = max_subsets(n,k)+1;
+	int n = 6;
+	int k = 2;
+	int subsets = max_subsets(n,k);
 	vector<string> all_vectors;
 
 	bool flag = false;
@@ -34,10 +34,16 @@ int main() {
 		} while (next_permutation(vec.begin(), vec.end()));
 	}
 
+	sort(all_vectors.begin(), all_vectors.end());
+
+	cout << "all vectores created." << endl;
+
 	string mask(1<<n, '0');
-	for (int i=0; i<subsets; i++)
+	for (int i=0; i<subsets-1; i++)
 		mask[i] = '1';
 	sort(mask.begin(),mask.end());	
+	mask[0] = '1';
+
 
 	do {
 		vector<string> vectors;
@@ -45,11 +51,20 @@ int main() {
 			if (mask[i]=='1')
 				vectors.push_back(all_vectors[i]);
 
-		int vc = vc_dim(n,vectors);
-		if (vc<=k)
-			flag = true;
+		if (vectors[0] == string(n, '0') and vectors[subsets-1] == string(n,'1')) {
+			int vc = vc_dim(n,vectors);
+			if (vc<=k) {
+				flag = true;
 
-	}	while (next_permutation(mask.begin(), mask.end()));
+				for(auto &s : vectors)
+					cout << "\t" << s;
+				cout << endl; 
+			}
+		}
+
+		vectors.clear();
+
+	}	while (next_permutation(mask.begin()+1, mask.end()-1));
 
 	cout << "flag: " << flag << endl;
 	cout << subsets << endl;
