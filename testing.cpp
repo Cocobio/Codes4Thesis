@@ -152,7 +152,9 @@ vector<short> get_index(string &mask) {
 	return idx;
 }
 
-int combi(int n, int k) {
+int binom(int n, int k) {
+	if (k==0) return 1;
+	
 	int res = 1;	
 	for (int i=1; i<=n; i++)
 		res *= i;
@@ -169,7 +171,7 @@ int combi(int n, int k) {
 int max_subsets(int n, int k) {
 	int res = 1;	
 	for (int i=1; i<=k; i++)
-		res += combi(n,i);		
+		res += binom(n,i);		
 
 	return res;
 }

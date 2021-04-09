@@ -5,9 +5,13 @@
 #include <stdexcept>
 #include <algorithm>
 #include <unordered_set>
+#include <math.h>
 
 using namespace std;
 
+int binom(int n, int k);
+
+int corolario_Sauer(int n, int cardinal_F);
 bool shatter(vector<string> &F, string &mask);
 vector<short> get_index(string &mask);
 
@@ -38,7 +42,14 @@ int main() {
 	int vc = 0;
 	vector<vector<short>> Ds;
 
-	for(int i=1; i<=n; i++) {
+	int min = corolario_Sauer(n, unique_vecs.size());
+	int max = floor(log2(unique_vecs.size()));
+
+	for (int i=1; i<=min; i++) {
+		mask[mask.size()-i] = '1';
+	}
+
+	for (int i=min; i<=max; i++) {
 		mask[mask.size()-i] = '1';
 
 		do {
@@ -52,7 +63,7 @@ int main() {
 			else if (vc+2==i)
 				break;
 
-		} while(next_permutation(mask.begin(),mask.end()));
+		} while (next_permutation(mask.begin(),mask.end()));
 
 	}
 
@@ -74,6 +85,16 @@ int main() {
 	}
 
 	return 0;
+}
+
+int corolario_Sauer(int n, int cardinal_F) {
+	int k = 0;
+	int sum = 0;
+
+	while (sum < cardinal_F)
+		sum += binom(n,k++);
+
+	return k;
 }
 
 bool shatter(vector<string> &F, string &D) {
@@ -110,3 +131,24 @@ vector<short> get_index(string &mask) {
 }
 
 
+int binom(int n, int k) {
+	if (k==0) return 1;
+
+	int res = 1;	
+	// for (int i=1; i<=n; i++)
+	// 	res *= i;
+
+	// for (int i=1; i<=k; i++)
+	// 	res /= i;
+	
+	// for (int i=1; i<=n-k; i++)
+	// 	res /= i;
+
+	for (int i=k+1; i<=n; i++)
+		res *= i;
+
+	for (int i=1; i<=n-k; i++)
+		res /= i;
+
+	return res;
+}
