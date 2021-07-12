@@ -1,4 +1,6 @@
-#include <iostream>
+#ifndef VCDIMENSION
+#define VCDIMENSION
+
 #include <bitset>
 #include <string>
 #include <vector>
@@ -6,16 +8,70 @@
 #include <algorithm>
 #include <unordered_set>
 #include <math.h>
+#include <iostream>
 
 using namespace std;
 
-int binom(int n, int k);
+// https://cp-algorithms.com/combinatorics/binomial-coefficients.html
+// Calculo del espacio binomian de n sobre k
+int binom(int n, int k) {
+    double res = 1;
+    for (int i = 1; i <= k; ++i)
+        res = res * (n - k + i) / i;
+    return (int)(res + 0.01);
+}
 
-int corolario_Sauer(int n, int cardinal_F);
-bool shatter(vector<string> &F, string &mask);
-vector<short> get_index(string &mask);
+// Devuelve el maximo k que cumple con el corolario de Sauer para la VC-dim y 
+// el cardinal del conjunto. Este corolario se describe en el informe.
+// Basicamente devuelve el minimo k (VC-Dim) dado solo el cardinal de un conjunto.
+// \sum_{i=0}^{k} \binom{n}{i} < |F|
+int corolarioSauer(int n, int cardinalF) {
+	int k = 0;
+	int sum = 0;
 
-int main() {
+	while (sum < cardinalF)
+		sum += binom(n,k++);
+
+	return k-1;
+}
+
+bool shatter(vector<string> &F, string &D) {
+	unordered_set<string> combinations;
+
+	int dim = 0;
+
+	for (auto &c : D)
+		if (c=='1') dim++;
+		
+	// Family must contain at least 2^dim vectors
+	if (F.size()<(1<<dim))
+		return false;
+
+	for (auto &vec : F) {
+		string str(D.size(), '0');
+		for (int i=0; i<D.size(); i++)
+			if (D[i]=='1')
+				str[i] = vec[i];
+		combinations.insert(str);
+	}
+
+	return combinations.size()==(1<<dim);
+}
+
+vector<short> get_index(string &mask) {
+	vector<short> idx;
+
+	for (int i=0; i<mask.size(); i++)
+		if (mask[i]=='1')
+			idx.push_back(i+1);
+
+	return idx;
+}
+
+
+
+
+int test() {
 	size_t n;
 	vector<string> vectors;
 	
@@ -42,7 +98,7 @@ int main() {
 	int vc = 0;
 	vector<vector<short>> Ds;
 
-	int min = corolario_Sauer(n, vectors.size());
+	int min = corolarioSauer(n, vectors.size());
 	int max = floor(log2(vectors.size()));
 
 	cout << "min: " << min << "\nmax: " << max << endl;
@@ -89,68 +145,10 @@ int main() {
 	return 0;
 }
 
-int corolario_Sauer(int n, int cardinal_F) {
-	int k = 0;
-	int sum = 0;
-
-	while (sum < cardinal_F)
-		sum += binom(n,k++);
-
-	return k;
-}
-
-bool shatter(vector<string> &F, string &D) {
-	unordered_set<string> combinations;
-
-	int dim = 0;
-
-	for (auto &c : D)
-		if (c=='1') dim++;
-		
-	// Family must contain at least 2^dim vectors
-	if (F.size()<(1<<dim))
-		return false;
-
-	for (auto &vec : F) {
-		string str(D.size(), '0');
-		for (int i=0; i<D.size(); i++)
-			if (D[i]=='1')
-				str[i] = vec[i];
-		combinations.insert(str);
-	}
-
-	return combinations.size()==(1<<dim);
-}
-
-vector<short> get_index(string &mask) {
-	vector<short> idx;
-
-	for (int i=0; i<mask.size(); i++)
-		if (mask[i]=='1')
-			idx.push_back(i+1);
-
-	return idx;
-}
 
 
-int binom(int n, int k) {
-	if (k==0) return 1;
 
-	int res = 1;	
-	// for (int i=1; i<=n; i++)
-	// 	res *= i;
 
-	// for (int i=1; i<=k; i++)
-	// 	res /= i;
-	
-	// for (int i=1; i<=n-k; i++)
-	// 	res /= i;
 
-	for (int i=k+1; i<=n; i++)
-		res *= i;
 
-	for (int i=1; i<=n-k; i++)
-		res /= i;
-
-	return res;
-}
+#endif
