@@ -35,6 +35,16 @@ int corolarioSauer(int n, int cardinalF) {
 	return k-1;
 }
 
+int sumatoriaSauer(int n, int k) {
+	int sum = 0;
+
+	for (int i=0; i<=k; i++)
+		sum += binom(n,i);
+
+	return sum;
+}
+
+
 bool shatter(vector<string> &F, string &D) {
 	unordered_set<string> combinations;
 
@@ -68,10 +78,75 @@ vector<short> get_index(string &mask) {
 	return idx;
 }
 
+void uniqueVecs(vector<string> &S) {	
+	unordered_set<string> unique_vecs;
+
+	for (string &v : S)
+		unique_vecs.insert(v);
+
+	if (unique_vecs.size() < S.size()) {
+		S.clear();
+		S = vector<string>(unique_vecs.begin(), unique_vecs.end());
+	}
+}
+
+
+// Devuelve los indices que forman la VC dimension
+vector<short> vc_dim(vector<string> &S) {
+	// Por Sauer y cardinal tendremos un lower y un upper bound para la VC-dimension
+	int n = S[0].size();
+	int vc_lb = corolarioSauer(n, S.size());
+	int vc_ub = floor(log2(S.size()));
+
+	// indices de la VC-dim
+	vector<short> idx;
+
+	// Creamos una mascara para probar los indices que fragmentan S
+	string mask(n,'0');
+	for (int i=1; i<=vc_lb; i++) {
+		mask[mask.size()-i] = '1';
+	}
+
+	// Probamos todas las posibilidades entre el lower bound y el upper bound
+	for (int i=vc_lb; i<=vc_ub; i++) {
+		do {
+			if (shatter(S,mask)) {
+				idx = get_index(mask);
+				sort(mask.begin(), mask.end());
+				break;
+
+				// if (Ds.size() and vc!=i) {
+				// 	vc = i;
+				// 	Ds.clear();
+				// }
+				// Ds.push_back(get_index(mask));
+			}
+			// else if (idx.size()>=+2==i)
+			// 	break;
+
+		} while (next_permutation(mask.begin(),mask.end()));
+
+		mask[mask.size()-i-1] = '1';
+	}
+
+	if (idx.size()<vc_lb) {
+		cout << "Mask: " << mask << endl;
+		cout << "vc_lb: " << vc_lb << "\nvc_ub: " << vc_ub << endl;
+		cout << "Index found:" << endl;
+		for (short &i : idx)
+			cout << "\t" << i << endl;
+		throw logic_error("Less index found than the lower bound.");
+	}
+
+	return idx;
+}
 
 
 
-int test() {
+
+
+
+int test(vector<string> &VC) {
 	size_t n;
 	vector<string> vectors;
 	
@@ -126,8 +201,9 @@ int test() {
 	}
 
 	// Output results
+	return Ds[0].size();
 	if (Ds.size()!=0) {
-		cout << "VC-dimension: " << Ds[0].size() << endl;
+		cout << "VC-dimension: " << vc << endl;
 		cout << "Sets:" << endl;
 
 		// Output sets
@@ -139,10 +215,8 @@ int test() {
 		}
 	}
 	else {
-		cout << "VC-dimension: 0" << endl;
+		return 0;
 	}
-
-	return 0;
 }
 
 

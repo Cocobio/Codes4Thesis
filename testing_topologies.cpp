@@ -20,11 +20,15 @@ int main() {
 
 	// Agregamos los vectores de puros 0 y de puros 1
 	sort(vectores.begin(), vectores.end());
+	cout << "input with size " << vectores.size() << endl;
+	for (auto &v : vectores)
+		cout << v << endl;
+
 	if (vectores.front() != string(n,'0')) vectores.push_back(string(n,'0'));
 	if (vectores.back() != string(n,'1')) vectores.push_back(string(n,'1'));
 
 	cout << "expanding..." << endl;
-	auto expanded = expandToTopology<>(vectores.begin(), vectores.end());
+	vector<string> expanded = expandToTopology<>(vectores.begin(), vectores.end());
 	sort(expanded.begin(), expanded.end());
 
 	cout << "input expanded, with size " << expanded.size() << endl;
@@ -32,6 +36,19 @@ int main() {
 		cout << v << endl;
 
 	// cout << corolarioSauer(5, 7) << endl;
+	vector<short> original = vc_dim(vectores);
+	cout << "VC dim input: " << original.size() << endl;
+	cout << "idxs: ";
+	for (auto &i : original)
+		cout << i << " ";
+	cout << endl;
+
+	vector<short> topo = vc_dim(expanded);
+	cout << "VC dim expanded: " << topo.size() << endl;
+	cout << "idxs: ";
+	for (auto &i : topo)
+		cout << i << " ";
+	cout << endl;
 
 	return 0;
 }
