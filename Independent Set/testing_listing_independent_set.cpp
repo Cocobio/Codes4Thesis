@@ -12,6 +12,8 @@ template <typename T> void cout_graph(T &graph);
 
 template <typename K> void cout_cliques(vector<K> &cliques);
 
+template <typename T> set<set<T>> expand_MIS(vector<set<T>> &mis);
+
 int main(int argc, char *argv[]) {
 
 	if (argc < 2)
@@ -40,28 +42,33 @@ int main(int argc, char *argv[]) {
 	MyDigraph<string> graph_closure = graph.transitive_closure();
 	auto graph_complement = graph_closure.complement<MyGraph<string>>();
 
-	vector<set<string>> cliques = graph_complement.listing_cliques();
+	vector<set<string>> independent_sets = graph_complement.listing_cliques();
 
-	// cout
-	// cout_graph(graph);
-	// cout << endl << endl;
-	// cout_graph(graph_closure);
-	// cout << endl << endl;
-	// cout_graph(graph_complement);
 
 	cout << "Lista de independent sets en el complemento de la clausura transitiva" << endl;
-	cout_cliques(cliques);
+	cout_cliques(independent_sets);
 
-	set<set<string>> subsets;
+	set<set<string>> subsets = expand_MIS<string>(independent_sets);
 
-	for(int i=0; i<cliques.size(); i++) {
-		string mask = string(cliques[i].size(),'0');
-		mask[0] = '1';
-		sort(mask.begin(),mask.end());
-		
-		
+	cout << subsets.size() << endl;
+
+	vector<string> o;
+	for (auto &is : subsets) {
+		string a = "";
+		// cout << "{ ";
+		a += "{ ";
+		for (auto &ith : is)
+			// cout << ith << ' ';
+			a += ith + " ";
+		// cout << "}" << endl;
+		a += "}";
+		o.push_back(a);
 	}
 
+	sort(o.begin(), o.end(), [](string &a, string &b){ return a.size()<b.size() or (a.size()==b.size() and a<b); });
+
+	for (auto &is : o)
+		cout << is << endl;
 
 	return 0;
 }
@@ -107,4 +114,33 @@ template <typename K> void cout_cliques(vector<K> &cliques) {
 			cout << v << " ";
 		cout << "}" << endl;
 	}
+}
+
+
+
+template <typename T> set<set<T>> expand_MIS(vector<set<T>> &mis){
+	set<set<T>> subsets;
+	subsets.insert(set<T>());
+
+	for(int i=0; i<mis.size(); i++) {
+		string mask = string(mis[i].size(),'0');
+		
+		for (int j=mis[i].size()-1; j>=0; j--) {
+			mask[j] = '1';
+
+			do {
+				set<T> tmp;
+				for (int k=0; k<mask.size(); k++)
+					if (mask[k]=='1') {
+						set<T>::iterator it = mis[i].begin();
+						advance(it, k);
+						tmp.insert(*it);
+					}
+				subsets.insert(tmp);
+			} while(next_permutation(mask.begin(),mask.end()));
+		}
+		
+	}
+
+	return subsets;
 }
